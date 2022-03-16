@@ -33,6 +33,7 @@ library
       src
   build-depends:
       base >=4.7 && <5
+    , text
   default-language: Haskell2010
 
 executable miz-parser-exe
@@ -45,6 +46,7 @@ executable miz-parser-exe
   build-depends:
       base >=4.7 && <5
     , miz-parser
+    , text
   default-language: Haskell2010
 
 test-suite miz-parser-test
@@ -58,4 +60,5 @@ test-suite miz-parser-test
   build-depends:
       base >=4.7 && <5
     , miz-parser
+    , text
   default-language: Haskell2010

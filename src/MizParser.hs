@@ -3,6 +3,8 @@
 
 module MizParser
     ( parse
+    , Parser (..)
+    , Input (..)
     ) where
 
 import Control.Applicative
@@ -75,7 +77,7 @@ charP c = Parser f
                 Left $ 
                 ParseError 
                     (inputLoc input)
-                    ("Expected '" ++ [c] ++ "' but found '" ++ [y] ++ "' at " ++ (take 10 $ inputStr ys))
+                    ("Expected '" ++ [c] ++ "' but found '" ++ [y] ++ "' at " ++ take 10 (inputStr ys))
         f input =
             Left $ 
             ParseError
@@ -138,7 +140,7 @@ doubleLiteral =
   doubleFromParts
     <$> (minus <|> pure 1)
     <*> (read <$> digits)
-    <*> ((read <$> (('0':) <$> ((:) <$> charP '.' <*> digits))) <|> pure 0)
+    <*> (read <$> (('0':) <$> ((:) <$> charP '.' <*> digits)))
     <*> ((e *> ((*) <$> (plus <|> minus <|> pure 1) <*> (read <$> digits))) <|> pure 0)
   where
     digits = some $ parseIf "digit" isDigit
@@ -250,16 +252,11 @@ mizArray =
     MizList 
         <$> (ws *> charP '{' *> ws *> many (mizElem <* separator) <* ws <* charP '}')
 
-mizArraySome :: Parser MizValue
-mizArraySome = 
-    MizList 
-        <$> (ws *> charP '{' *> ws *> some (mizElem <* separator) <* ws <* charP '}')
-
 mizMission :: Parser MizItem
 mizMission =
     liftA2 MizElem
-      (MizStringTag <$> stringP "mission" <* ws <* charP '=' <* ws)
-      mizArraySome
+        (MizMission <$ (stringP "mission" *> ws *> charP '=' *> ws ))
+        mizArray
 
 -- | Apply parser to content of file
 parseFile :: FilePath                 -- File path to parse
