@@ -1,4 +1,4 @@
-[INFO] Parsed as: mission = 
+mission = 
 {
     ["trig"] = 
     {

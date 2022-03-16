@@ -1,12 +1,17 @@
+{-# LANGUAGE NoImplicitPrelude #-}
+{-# LANGUAGE OverloadedStrings #-}
+
 module MizTypes 
     ( MizTag (..)
     , MizValue (..)
     , MizItem (..)
-    , endsWith
     )
 where 
 
+import Prelude (String, Integer, Int, Double, Bool (..), Show (..), Eq, (<>), ($), (.))
+import Prelude as P
 import Numeric
+import Data.Text 
 
 data MizTag 
     = MizStringTag String
@@ -27,50 +32,31 @@ data MizItem
     deriving (Eq)
 
 instance Show MizItem where
-    show = printItem "" ""
+    show = unpack . printItem "" ""
 
-showBool :: Bool -> String
+showBool :: Bool -> Text
 showBool True = "true"
 showBool False = "false"
 
-dropLast :: Int -> [a] -> [a]
-dropLast i xs = if length xs < i then [] else take (length xs - i) xs
-
-endsWith :: Eq a => [a] -> [a] -> Bool
-endsWith m x 
-    | length x < length m = False
-    | length x == length m = x == m 
-    | otherwise = endsWith m (drop 1 x)
-
-showDouble :: Double -> String
-showDouble d = 
-    if endsWith ".0" disp then dropLast 2 disp else disp 
-    where 
-        disp = show d
-
-showL :: Show a => String -> [a] -> String
-showL sep [] = ""
-showL sep (x:xs) = "\t" ++ show x ++ sep ++ showL sep xs
-
-showIndentedL :: String -> String -> [MizItem] -> String
-showIndentedL indent sep = foldr (\x s -> printItem indent sep x ++ s) ""
+showIndentedL :: Text -> Text -> [MizItem] -> Text
+showIndentedL indent sep = P.foldr (\x s -> printItem indent sep x <> s) ""
     
-showVal :: String -> MizValue -> String
-showVal _ (MizString s) = show s
-showVal _ (MizInt i) = show i
-showVal _ (MizNumber d) = showDouble d
+showVal :: Text -> MizValue -> Text
+showVal _ (MizString s) = pack $ show s
+showVal _ (MizInt i) = pack $ show i
+showVal _ (MizNumber d) = pack $ show d
 showVal _ (MizBool b) = showBool b
 showVal indent (MizList vs) = 
-    "\n" ++ 
-        indent ++  "{\n" ++ 
-        showIndentedL (indent ++ "    ") "," vs ++ 
-        indent ++ "}" 
+    "\n" <> 
+        indent <>  "{\n" <> 
+        showIndentedL (indent <> "    ") "," vs <> 
+        indent <> "}" 
 
-showTag :: String -> MizTag -> String
-showTag indent (MizStringTag s) = indent ++ "[\"" ++ s ++ "\"]"
-showTag indent (MizIntTag i) = indent ++ "[" ++ show i ++ "]"
+showTag :: Text -> MizTag -> Text
+showTag indent (MizStringTag s) = indent <> "[\"" <> pack s <> "\"]"
+showTag indent (MizIntTag i) = indent <> "[" <> (pack . show) i <> "]"
 showTag _ MizMission = "mission"
 
-printItem :: String -> String -> MizItem -> String
-printItem indent sep (MizElem tag (MizList l)) = showTag indent tag ++ " = " ++ showVal indent (MizList l) ++ sep ++ " -- end of " ++ showTag "" tag ++ "\n"
-printItem indent sep (MizElem tag val) = showTag indent tag ++ " = " ++ showVal indent val ++ sep ++ "\n"
+printItem :: Text -> Text -> MizItem -> Text
+printItem indent sep (MizElem tag (MizList l)) = showTag indent tag <> " = " <> showVal indent (MizList l) <> sep <> " -- end of " <> showTag "" tag <> "\n"
+printItem indent sep (MizElem tag val) = showTag indent tag <> " = " <> showVal indent val <> sep <> "\n"

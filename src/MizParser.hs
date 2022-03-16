@@ -22,7 +22,7 @@ parse file = do
     contents <- hGetContents handle
     case runParser mizMission $ Input 0 contents of
       Right (input, actualAst) -> do
-        putStrLn ("[INFO] Parsed as: " ++ show actualAst)
+        print actualAst
       Left (ParseError loc msg) -> do
         putStrLn $
           "[ERROR] Parser failed at character " ++ show loc ++ ": " ++ msg
