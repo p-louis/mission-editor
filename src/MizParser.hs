@@ -1,11 +1,8 @@
 {-# LANGUAGE FlexibleInstances #-}
 {-# LANGUAGE ViewPatterns      #-}
 
-module Lib
+module MizParser
     ( parse
-    , MizTag (..)
-    , MizValue (..)
-    , MizItem (..)
     ) where
 
 import Control.Applicative
@@ -14,6 +11,8 @@ import Data.Char
 import Numeric
 import System.Exit
 import System.IO
+
+import MizTypes
 
 parse :: String -> IO ()
 parse file = do
@@ -38,23 +37,6 @@ data Input = Input
     } deriving (Show, Eq)
 
 data ParseError = ParseError Int String deriving (Show)
-
-data MizTag 
-    = MizStringTag String
-    | MizIntTag Integer
-    deriving (Show, Eq)
-
-data MizValue 
-    = MizString String
-    | MizInt Integer
-    | MizNumber Double
-    | MizBool Bool
-    | MizList [MizItem]
-    deriving (Show, Eq)
-
-data MizItem
-    = MizElem MizTag MizValue
-    deriving (Show, Eq)
 
 newtype Parser a = Parser
     { runParser :: Input -> Either ParseError (Input, a)

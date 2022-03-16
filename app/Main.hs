@@ -1,6 +1,6 @@
 module Main where
 
-import Lib
+import MizParser
 import System.Environment
 import System.Exit
 

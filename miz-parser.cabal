@@ -25,7 +25,8 @@ source-repository head
 
 library
   exposed-modules:
-      Lib
+      MizParser
+      MizTypes
   other-modules:
       Paths_miz_parser
   hs-source-dirs:
